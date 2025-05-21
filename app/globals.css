@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-primary-green-cta: #041300;
+  --color-text-green: #21c55d;
+  --color-secondary-light-green-cta: #3fe376;
+}
+
+
+
