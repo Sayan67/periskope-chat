@@ -4,6 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/components/Proveiders/AuthProvider";
 import { Toaster } from "react-hot-toast";
 import { Provider } from "jotai";
+import LeftSideMenu from "@/components/layout/LeftSideMenu";
+import Header from "@/components/layout/Header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +42,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Provider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <div className="flex">
+              <LeftSideMenu />
+              <div className="w-full min-h-screen flex flex-col">
+                <Header />
+                {children}
+              </div>
+            </div>
+          </AuthProvider>
           <Toaster />
         </Provider>
       </body>
