@@ -3,16 +3,19 @@
 import { useState } from "react";
 import { useAuth } from "../Proveiders/AuthProvider";
 import Link from "next/link";
-import { authPageStateAtom } from "@/store/pageState";
 import { useAtom } from "jotai";
+import { authPageStateAtom } from "@/store/pageState";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [authPageState, setAuthPageState] = useAtom(authPageStateAtom);
-  const { signInWithEmailPassword } = useAuth();
+
+  const { registerWithEmailPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,10 +30,25 @@ export default function LoginPage() {
       return;
     }
 
+    if (!name) {
+      setError("Name is required");
+      return;
+    }
+
+    if (!phone) {
+      setError("Phone number is required");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
-    const { error } = await signInWithEmailPassword(email, password);
+    const { error } = await registerWithEmailPassword(
+      email,
+      password,
+      name,
+      phone
+    );
 
     setLoading(false);
 
@@ -43,7 +61,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-100">
       <div className="w-full max-w-md p-6 bg-white shadow rounded-xl">
-        <h1 className="text-xl font-semibold mb-4 text-center">Login</h1>
+        <h1 className="text-xl font-semibold mb-4 text-center">
+          Create Account
+        </h1>
 
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
@@ -53,10 +73,26 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <input
+            type="text"
+            placeholder="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-2 border rounded mb-4"
+          />
+
+          <input
             type="email"
-            placeholder="Email address"
+            placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 border rounded mb-4"
+          />
+
+          <input
+            type="tel"
+            placeholder="Phone Number (e.g. +919876543210)"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             className="w-full p-2 border rounded mb-4"
           />
 
@@ -71,20 +107,20 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-text-green hover:bg-green-600 text-white py-2 rounded"
+            className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Creating account..." : "Register"}
           </button>
         </form>
 
         <div className="mt-4 text-center text-sm">
           <p>
-            Don't have an account?{" "}
+            Already have an account?{" "}
             <button
-              onClick={() => setAuthPageState("signup")}
+              onClick={() => setAuthPageState("login")}
               className="text-text-green hover:underline"
             >
-              Register
+              Login
             </button>
           </p>
         </div>

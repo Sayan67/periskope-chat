@@ -17,15 +17,13 @@ export async function middleware(request: NextRequest) {
 
   // Redirect to login if trying to access protected routes without auth
   if (!session && isProtectedRoute) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/auth", request.url));
   }
 
   // Redirect to dashboard if already logged in but accessing auth pages
   if (
     session &&
-    (request.nextUrl.pathname === "/login" ||
-      request.nextUrl.pathname === "/" ||
-      request.nextUrl.pathname === "/register")
+    (request.nextUrl.pathname === "/auth" || request.nextUrl.pathname === "/")
   ) {
     return NextResponse.redirect(new URL("/chats", request.url));
   }

@@ -3,14 +3,15 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import type { User, Session } from "@supabase/supabase-js";
+import { User, Session } from "@supabase/supabase-js";
+import { toast } from "react-hot-toast";
 
 type AuthContextType = {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  signInWithOtp: (phone: string) => Promise<{ error: Error | null }>;
-  verifyOtp: (phone: string, token: string) => Promise<{ error: Error | null }>;
+  signInWithEmailPassword: (email: string, password: string) => Promise<{ error: Error | null }>;
+  registerWithEmailPassword: (email: string, password: string, name: string, phone: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 };
 
@@ -48,40 +49,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [router, supabase]);
 
-  const signInWithOtp = async (phone: string) => {
+  const signInWithEmailPassword = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone,
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-      return { error };
+      
+      if (error) {
+        toast.error(error.message);
+        return { error: error as Error };
+      }
+      
+      toast.success("Logged in successfully");
+      router.push("/chats");
+      return { error: null };
     } catch (error) {
-      console.error("Error sending OTP:", error);
+      console.error("Error logging in:", error);
       return { error: error as Error };
     }
   };
 
-  const verifyOtp = async (phone: string, token: string) => {
+  const registerWithEmailPassword = async (email: string, password: string, name: string, phone: string) => {
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        phone,
-        token,
-        type: "sms",
+      // Sign up the user
+      const { error, data } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name:name,
+            phone
+          }
+        }
       });
-
-      if (!error) {
-        router.push("/chats");
+      
+      if (error) {
+        toast.error(error.message);
+        return { error: error as Error };
       }
-
-      return { error };
+      
+      // If successful registration and user ID is available, create a profile
+      if (data.user?.id) {
+        const { error: profileError } = await supabase.from('users').insert({
+            id: data.user.id,
+            name: name,
+            phone_number: phone,
+          });
+          
+        if (profileError) {
+          console.error("Error creating user profile:", profileError);
+        }
+      }
+      
+      toast.success("Account created successfully");
+      router.push("/chats");
+      return { error: null };
     } catch (error) {
-      console.error("Error verifying OTP:", error);
+      console.error("Error registering:", error);
       return { error: error as Error };
     }
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push("/auth");
   };
 
   return (
@@ -90,8 +122,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         session,
         isLoading,
-        signInWithOtp,
-        verifyOtp,
+        signInWithEmailPassword,
+        registerWithEmailPassword,
         signOut,
       }}
     >

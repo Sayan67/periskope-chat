@@ -10,5 +10,7 @@
   --color-secondary-light-green-cta: #3fe376;
 }
 
-
+button{
+  cursor: pointer;
+}
 
