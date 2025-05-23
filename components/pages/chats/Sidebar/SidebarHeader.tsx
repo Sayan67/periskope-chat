@@ -38,14 +38,14 @@ function SidebarHeader() {
           } hover:text-green-700 font-semibold`}
           variant={"outline"}
         >
-          <IoSearch /> Search
+          <IoSearch /> <p className="hidden xl:flex">Search</p>
         </Button>
         <Button
           onClick={() => toggleFilterState("filter")}
           className=" px-3 text-green-700 py-1 text-xs hover:text-green-700 relative font-semibold h-8"
           variant={"outline"}
         >
-          <IoFilter /> Filtered
+          <IoFilter /> <p className="hidden xl:flex">Filtered</p>
           <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2">
             <IoIosCloseCircle size={30} />
           </div>

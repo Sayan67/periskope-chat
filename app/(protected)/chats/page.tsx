@@ -10,6 +10,8 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import RightSideMenu from "@/components/layout/RightSideMenu";
+import Chat from "@/components/pages/chats/Chat";
+import Image from "next/image";
 
 function page() {
   const [selectedChat, setSelectedChat] = useState<ChatCardProps | null>(null);
@@ -48,10 +50,17 @@ function page() {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel minSize={60} defaultSize={65}>
-          <div className="flex h-full items-center justify-center p-6">
-            <span className="font-semibold">
+          <div className="flex h-full items-center justify-center p-6 relative">
+          <Image
+            src="/images/doodle.jpg"
+            alt="Doodle"
+            fill
+            className="object-cover absolute inset-0 opacity-40 sepia-[10%]"
+            style={{ zIndex: -1 }}
+          />
+            <span className="font-semibold text-green-700 text-xl">
               {selectedChat
-                ? `Chat with ${selectedChat.name}`
+                ? <Chat/>
                 : "Select a chat to start messaging"}
             </span>
           </div>
