@@ -6,6 +6,8 @@ import { Toaster } from "react-hot-toast";
 import { Provider } from "jotai";
 import LeftSideMenu from "@/components/layout/LeftSideMenu";
 import Header from "@/components/layout/Header";
+import Image from "next/image";
+import { images } from "@/constants/images";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,12 +45,16 @@ export default function RootLayout({
       >
         <Provider>
           <AuthProvider>
-            <div className="flex">
+            <div className="hidden lg:flex">
               <LeftSideMenu />
               <div className="w-full min-h-screen flex flex-col">
                 <Header />
                 {children}
               </div>
+            </div>
+            <div className="lg:hidden w-full h-screen text-green-400 flex justify-center items-center text-2xl flex-col gap-4 font-bold bg-gray-700 px-5 text-center">
+              <Image src={images.logo.src} width={200} height={80} alt="Logo" />
+              <h1>Please switch to desktop device to access the application</h1>
             </div>
           </AuthProvider>
           <Toaster />

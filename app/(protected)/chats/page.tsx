@@ -9,12 +9,13 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import RightSideMenu from "@/components/layout/RightSideMenu";
 
 function page() {
   const [selectedChat, setSelectedChat] = useState<ChatCardProps | null>(null);
   const [sidebarSize, setSidebarSize] = useState(25);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  
+
   const dummyChats: ChatCardProps[] = [
     {
       id: "1",
@@ -36,30 +37,27 @@ function page() {
     },
   ];
 
-  
   return (
-    <div>
+    <div className="flex w-full">
       <ResizablePanelGroup
         direction="horizontal"
-        className="min-h-[calc(100vh-60px)] w-full rounded-lg border md:min-w-[450px]"
+        className="min-h-[calc(100vh-60px)] w-full md:min-w-[450px]"
       >
-        <ResizablePanel
-          minSize={15}
-          maxSize={25} 
-        >
-          <div>
-            Message list
-          </div>
+        <ResizablePanel defaultSize={35} minSize={30} maxSize={35} className="">
+          <Sidebar/>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel minSize={60}>
+        <ResizablePanel minSize={60} defaultSize={65}>
           <div className="flex h-full items-center justify-center p-6">
             <span className="font-semibold">
-              {selectedChat ? `Chat with ${selectedChat.name}` : "Select a chat to start messaging"}
+              {selectedChat
+                ? `Chat with ${selectedChat.name}`
+                : "Select a chat to start messaging"}
             </span>
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
+      <RightSideMenu />
     </div>
   );
 }
