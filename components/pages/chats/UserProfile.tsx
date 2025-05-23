@@ -51,7 +51,7 @@ export default function UserProfile() {
         <button
           onClick={updateProfile}
           disabled={isUpdating}
-          className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
+          className="bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded"
         >
           {isUpdating ? "Updating..." : "Update Profile"}
         </button>
@@ -65,7 +65,7 @@ export default function UserProfile() {
       </div>
 
       {updateSuccess && (
-        <p className="mt-4 text-green-600">Profile updated successfully!</p>
+        <p className="mt-4 text-green-700">Profile updated successfully!</p>
       )}
     </div>
   );

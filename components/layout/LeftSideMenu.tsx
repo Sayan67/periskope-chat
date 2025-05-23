@@ -16,23 +16,26 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAuth } from "../Proveiders/AuthProvider";
+import Link from "next/link";
 
 function LeftSideMenu() {
   const { signOut, isLoading } = useAuth();
   return (
     <div className="w-fit min-w-[60px] h-screen bg-white border-r-[1px] flex flex-col items-center py-4 px-1">
-      <div className="w-fit relative">
+      <Link href={"/"} className="w-fit relative">
         <Image
-          src={"/whatsapp.png"}
+          src={
+            "https://media.licdn.com/dms/image/v2/D4E0BAQEi-Cj3qTHuAg/company-logo_200_200/company-logo_200_200/0/1692600818066?e=1753315200&v=beta&t=yn5iRbgwjSbLn6oEveZTug-qafIVv0u3hxgz5slSVxk"
+          }
           alt="Logo"
           width={25}
           height={25}
-          className="object-contain mb-4"
+          className="object-contain mb-4 rounded-full overflow-hidden"
         />
-        <div className="absolute bottom-2 -right-2 px-1 bg-white rounded-full border border-white text-xs text-green-600 font-semibold">
+        <div className="absolute bottom-2 -right-2 px-1 bg-white rounded-full border border-white text-xs text-green-700 font-semibold">
           12
         </div>
-      </div>
+      </Link>
       <div className="flex flex-col items-center justify-between w-full h-full">
         <div className="flex flex-col items-center justify-center gap-1 w-[70%]">
           {leftMenubarItems.map((item, index) => (
@@ -49,7 +52,7 @@ function LeftSideMenu() {
                         size={20}
                         className={`${
                           item.name === "Chat"
-                            ? "text-green-600"
+                            ? "text-green-700"
                             : "text-gray-500"
                         } `}
                       />

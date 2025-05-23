@@ -5,11 +5,12 @@ type ChatItemProps = {
     lastMessage: string;
     time: string;
   };
+  style: React.CSSProperties;
 };
 
-export function ChatItem({ chat }: ChatItemProps) {
+export function ChatItem({ chat, style }: ChatItemProps) {
   return (
-    <div className="flex items-center px-4 py-3 border-b">
+    <div style={style} className="flex items-center px-4 py-3 border-b">
       <div className="w-12 h-12 bg-gray-300 rounded-full mr-4" />
       <div className="flex-1">
         <div className="font-medium">{chat.name}</div>

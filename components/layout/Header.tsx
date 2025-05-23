@@ -5,11 +5,6 @@ import { Button } from "../ui/button";
 import { LuLogs } from "react-icons/lu";
 import { Sparkle, Sparkles } from "lucide-react";
 import { TbRefreshDot } from "react-icons/tb";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Combobox } from "../Header/ComboBox";
 import { BsChatDotsFill } from "react-icons/bs";
 import { IoMdNotificationsOff } from "react-icons/io";

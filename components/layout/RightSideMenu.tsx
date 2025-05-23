@@ -21,7 +21,7 @@ function RightSideMenu() {
                 <item.icon
                   size={20}
                   className={`${
-                    item.name === "Chat" ? "text-green-600" : "text-gray-400"
+                    item.name === "Chat" ? "text-green-700" : "text-gray-400"
                   } `}
                 />
               </div>
