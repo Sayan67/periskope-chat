@@ -1,4 +1,4 @@
-import { Chat } from "@/types";
+import { Chat, ChatParticipantsMap } from "@/types";
 import { createClient } from "@/utils/supabase/client";
 
 const supabase = createClient();
@@ -20,17 +20,17 @@ export async function fetchChatList() {
         labels (
           name
         ),
-        chat_participants (
-          user:users (
+        messages (
+          content,
+          created_at,
+          sender:users (
             name,
             phone_number,
             avatar_url
           )
         ),
-        messages (
-          content,
-          created_at,
-          sender:users (
+        chat_participants (
+          user:users (
             name,
             phone_number,
             avatar_url
@@ -40,8 +40,8 @@ export async function fetchChatList() {
     `
       )
       .eq("user_id", currentUserId);
-      console.log(response);
-      
+    console.log(response);
+
     if (response.error) {
       throw new Error(response.error.message);
     }
@@ -53,6 +53,45 @@ export async function fetchChatList() {
     console.log(error);
     return [];
   }
+}
+
+export async function fetchParticipantsForChats(
+  chatIds: string[]
+): Promise<ChatParticipantsMap> {
+  const { data, error } = await supabase
+    .from("chat_participants")
+    .select(
+      `
+        chat_id,
+        user:users (
+          id,
+          name,
+          phone_number,
+          avatar_url
+        )
+      `
+    )
+    .in("chat_id", chatIds);
+  console.log("chat participants : ",data);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const participantsMap: ChatParticipantsMap = {};
+
+  for (const entry of data) {
+    if (!participantsMap[entry.chat_id]) {
+      participantsMap[entry.chat_id] = [];
+    }
+    participantsMap[entry.chat_id].push({
+      chat_id: entry.chat_id,
+      user: Array.isArray(entry.user) ? entry.user[0] : entry.user,
+    });
+  }
+  console.log(participantsMap);
+
+  return participantsMap;
 }
 
 const example_res = {

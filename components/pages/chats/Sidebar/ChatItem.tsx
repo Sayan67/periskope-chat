@@ -1,10 +1,15 @@
+import { useAuth } from "@/components/Proveiders/AuthProvider";
+import { fetchParticipantsForChats } from "@/services/chat-list";
+import { chatParticipantsAtom } from "@/store/chatList";
 import { selectedChatAtom } from "@/store/selectedChat";
-import { Chat } from "@/types";
+import { Chat, Participant } from "@/types";
 import { formatMessageDate } from "@/utils/general";
 import { useAtom } from "jotai";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { FaUser } from "react-icons/fa6";
 import { HiUsers } from "react-icons/hi";
+import { BiSolidPhone } from "react-icons/bi";
 
 type ChatItemProps = {
   chat: {
@@ -24,6 +29,13 @@ export function ChatItem({
   style: React.CSSProperties;
 }) {
   const [selectedChat, setSelectedChat] = useAtom(selectedChatAtom);
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const { user } = useAuth();
+  const [chatParticipants, setChatParticipants] = useAtom(chatParticipantsAtom);
+  useEffect(() => {
+    const chatId = chat?.id;
+    setParticipants(chatParticipants?.[chatId as string] ?? []);
+  }, [chat?.id, chatParticipants]);
   return (
     <div
       onClick={() =>
@@ -58,20 +70,26 @@ export function ChatItem({
             ? chat.name
             : chat?.chat_participants[0].user.name ?? "Unknown"}
         </div>
-        <div className="text-sm text-gray-500 truncate">
-          {chat?.messages?.[0]?.content.length &&
-          chat?.messages?.[0]?.content.length <= 20
-            ? chat?.messages?.[0]?.content
-            : chat?.messages?.[0]?.content.slice(0, 20) + "..."}
-        </div>
+        {chat?.messages && chat?.messages?.length > 0 && (
+          <div className="text-sm text-gray-500 truncate">
+            {
+              chat?.messages?.[0]?.sender?.name ??
+              chat?.chat_participants[0].user.name.split(" ")[0]
+            }{` : `} 
+            {chat?.messages?.[0]?.content.length &&
+            chat?.messages?.[0]?.content.length <= 20
+              ? chat?.messages?.[0]?.content
+              : chat?.messages?.[0]?.content.slice(0, 20) + "..."}
+          </div>
+        )}
         <div className="bg-gray-100 rounded-sm px-2 py-1 text-xs text-gray-500 w-fit">
-          {chat?.chat_participants?.[0]?.user.phone_number}
-          {chat?.chat_participants.length &&
-            chat?.chat_participants.length - 1 > 0 && (
-              <span className="text-gray-400">
-                {` +${chat?.chat_participants.length - 1} more`}
-              </span>
-            )}
+          <BiSolidPhone className="inline-block mr-1 text-gray-400" size={12} />
+          {participants[0]?.user?.phone_number}
+          {participants && participants.length - 1 > 0 && (
+            <span className="text-gray-400">
+              {` +${participants.length - 1}`}
+            </span>
+          )}
         </div>
       </div>
       <div className="text-xs text-gray-400 flex flex-col items-end justify-between h-full">
@@ -88,7 +106,7 @@ export function ChatItem({
               {label.name}
             </p>
           ))}
-          {chat?.labels.length &&
+          {chat?.labels &&
             chat?.labels.length > 2 &&
             chat?.labels.length - 2 > 0 && (
               <p
@@ -110,12 +128,14 @@ export function ChatItem({
                 className="rounded-full object-cover"
               />
             ) : (
-              <FaUser className=" text-gray-500" size={20} />
+              <FaUser className=" text-gray-500" size={8} />
             )}
           </div>
         )}
 
-        <p>{formatMessageDate(chat?.messages?.[0]?.created_at ?? "")}</p>
+        {chat?.messages && chat?.messages.length > 0 && (
+          <p>{formatMessageDate(chat?.messages?.[0]?.created_at ?? "")}</p>
+        )}
       </div>
     </div>
   );

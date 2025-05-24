@@ -12,6 +12,8 @@ import {
 import RightSideMenu from "@/components/layout/RightSideMenu";
 import Chat from "@/components/pages/chats/Chat";
 import Image from "next/image";
+import { BsChat } from "react-icons/bs";
+import Layout from "@/components/layout/Layout";
 
 function page() {
   const [selectedChat, setSelectedChat] = useState<ChatCardProps | null>(null);
@@ -40,34 +42,45 @@ function page() {
   ];
 
   return (
-    <div className="flex w-full">
-      <ResizablePanelGroup
-        direction="horizontal"
-        className="min-h-[calc(100vh-60px)] w-full md:min-w-[450px]"
-      >
-        <ResizablePanel defaultSize={35} minSize={30} maxSize={35} className="">
-          <Sidebar/>
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel minSize={60} defaultSize={65}>
-          <div className="flex h-full items-center justify-center p-6 relative">
-          <Image
-            src="/images/doodle.jpg"
-            alt="Doodle"
-            fill
-            className="object-cover absolute inset-0 opacity-40 sepia-[10%]"
-            style={{ zIndex: -1 }}
-          />
-            <span className="font-semibold text-green-700 text-xl">
-              {selectedChat
-                ? <Chat/>
-                : "Select a chat to start messaging"}
-            </span>
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
-      <RightSideMenu />
-    </div>
+    <Layout>
+      <div className="flex w-full">
+        <ResizablePanelGroup
+          direction="horizontal"
+          className="min-h-[calc(100vh-60px)] w-full md:min-w-[450px]"
+        >
+          <ResizablePanel
+            defaultSize={35}
+            minSize={30}
+            maxSize={35}
+            className="relative"
+          >
+            <Sidebar />
+            <button
+              className="rounded-full bg-green-700 text-white p-3 absolute bottom-3 right-3 z-10 hover:bg-green-800 transition-colors duration-200"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            >
+              <BsChat size={25} />
+            </button>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel minSize={60} defaultSize={65}>
+            <div className="flex h-full items-center justify-center p-6 relative">
+              <Image
+                src="/images/doodle.jpg"
+                alt="Doodle"
+                fill
+                className="object-cover absolute inset-0 opacity-40 sepia-[10%]"
+                style={{ zIndex: -1 }}
+              />
+              <span className="font-semibold text-green-700 text-xl">
+                {selectedChat ? <Chat /> : "Select a chat to start messaging"}
+              </span>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+        <RightSideMenu />
+      </div>
+    </Layout>
   );
 }
 

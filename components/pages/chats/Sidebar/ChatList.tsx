@@ -3,32 +3,38 @@ import { FixedSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { ChatItem } from "./ChatItem";
-import { fetchChatList } from "@/services/chat-list";
+import { fetchChatList, fetchParticipantsForChats } from "@/services/chat-list";
 import { Chat } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { createClient } from "@/utils/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { useAtom } from "jotai";
+import { chatParticipantsAtom } from "@/store/chatList";
+import { useAuth } from "@/components/Proveiders/AuthProvider";
 
 export const ChatList = () => {
   const [chatList, setChatList] = useState<Chat[] | undefined>([]);
   const [loading, setLoading] = useState(true);
-  // const getProductList = async () => {
-  //   const data = await fetch("https://dummyjson.com/products");
-  //   const json = await data.json();
-  //   setChatList(json.products);
-  // };
+  const supabase = createClient();
+  const [participantsMap, setParticipantsMap] = useAtom(chatParticipantsAtom);
+  const { user } = useAuth();
 
   useEffect(() => {
-    setLoading(true);
-    fetchChatList()
-      .then((data) => {
-        console.log(data);
-        setChatList(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching chat list:", error);
-        setLoading(false);
-      });
-  }, []);
+    async function loadData() {
+      setLoading(true);
+      const data = await fetchChatList();
+      console.log(data);
+
+      if (data.length > 0) {
+        const chatIds = data.map((chat) => chat.id);
+        const participants = await fetchParticipantsForChats(chatIds);
+        setParticipantsMap(participants);
+      }
+      setChatList(data);
+      setLoading(false);
+    }
+    loadData();
+  }, [user]);
 
   return (
     <React.Fragment>
@@ -67,8 +73,7 @@ export const ChatList = () => {
           )}
         </InfiniteLoader>
       )}
-      {loading &&
-        new Array(6).fill(0).map((_, i) => <SkeletonDemo key={i} />)}
+      {loading && new Array(6).fill(0).map((_, i) => <SkeletonDemo key={i} />)}
     </React.Fragment>
   );
 };

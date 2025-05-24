@@ -39,10 +39,33 @@ export type ChatParticipant = {
   joined_at: string;
 };
 
+
 export type Message = {
-  id: string;
-  chat_id: string;
-  sender_id: string;
   content: string;
   created_at: string;
+  sender: {
+    name: string | null;
+    phone_number: string | null;
+    avatar_url: string | null;
+  } | null;
 };
+
+export type ChatPreview = {
+  id: string;
+  name: string | null;
+  is_group: boolean;
+  created_at: string;
+  labels: string[];
+  last_message: Message | null;
+};
+
+export type Participant = {
+  chat_id: string;
+  user: {
+    name: string | null;
+    phone_number: string | null;
+    avatar_url: string | null;
+  };
+};
+
+export type ChatParticipantsMap = Record<string, Participant[]>;
