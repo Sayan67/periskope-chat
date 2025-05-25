@@ -59,7 +59,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-100">
+    <div className=" flex flex-col items-center justify-center">
       <div className="w-full max-w-md p-6 bg-white shadow rounded-xl">
         <h1 className="text-xl font-semibold mb-4 text-center">
           Create Account
@@ -107,7 +107,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-500 hover:bg-green-700 text-white py-2 rounded"
+            className="w-full bg-green-700 hover:bg-green-800 text-white py-2 rounded"
           >
             {loading ? "Creating account..." : "Register"}
           </button>
@@ -118,7 +118,7 @@ export default function RegisterPage() {
             Already have an account?{" "}
             <button
               onClick={() => setAuthPageState("login")}
-              className="text-text-green hover:underline"
+              className="text-green-700 hover:underline"
             >
               Login
             </button>

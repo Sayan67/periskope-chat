@@ -14,7 +14,10 @@ import { searchUsers } from "@/services/fetchUsers";
 import toast from "react-hot-toast";
 import { useDebounce } from "use-debounce";
 import { create } from "domain";
-import { createOrGetOneToOneChat } from "@/services/createChat";
+import {
+  createGroupChat,
+  createOrGetOneToOneChat,
+} from "@/services/createChat";
 import { fetchChatList, fetchParticipantsForChats } from "@/services/chat-list";
 import { chatListAtom, chatParticipantsAtom } from "@/store/chatList";
 import { useRouter } from "next/navigation";
@@ -89,14 +92,24 @@ export default function CreateChatModal() {
         toast.error("Please select at least 2 users and provide a group name.");
         return;
       }
-
-      // Create group chat logic here
-      // For now, we will just log the group details
       console.log("Creating group chat with:", {
         name: groupName,
-        avatar: groupAvatar,
         members: selectedUsers,
+        avatarFile: groupAvatar,
       });
+
+      const result = await createGroupChat({
+        name: groupName,
+        members: selectedUsers,
+        avatarFile: groupAvatar,
+      });
+
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Group chat created successfully!");
+        router.refresh();
+      }
 
       toast.success("Group chat created successfully!");
     } else {
@@ -144,7 +157,7 @@ export default function CreateChatModal() {
         }
       }}
     >
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogTitle className="text-lg font-semibold mb-4">
           {tab === "group" ? "Create Group Chat" : "Start a Conversation"}
         </DialogTitle>
