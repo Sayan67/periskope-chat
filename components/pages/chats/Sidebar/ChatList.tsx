@@ -3,7 +3,11 @@ import { FixedSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { ChatItem } from "./ChatItem";
-import { fetchChatById, fetchChatList, fetchParticipantsForChats } from "@/services/chat-list";
+import {
+  fetchChatById,
+  fetchChatList,
+  fetchParticipantsForChats,
+} from "@/services/chat-list";
 import { Chat } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/utils/supabase/client";
@@ -12,13 +16,40 @@ import { useAtom } from "jotai";
 import { chatListAtom, chatParticipantsAtom } from "@/store/chatList";
 import { useAuth } from "@/components/Proveiders/AuthProvider";
 import { listenForNewChats } from "@/services/listenToChatLIst";
+import { filtersAtom } from "@/store/filters";
 
 export const ChatList = () => {
-  const [chatList, setChatList] = useAtom(chatListAtom);
+  const [allChatList, setAllChatList] = useAtom(chatListAtom);
+  const [chatList, setChatList] = useState<Chat[] | undefined>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
   const [participantsMap, setParticipantsMap] = useAtom(chatParticipantsAtom);
   const { user } = useAuth();
+  const [filterState, setFilterState] = useAtom(filtersAtom);
+
+  useEffect(() => {
+    if (filterState.state === "search" && filterState.search.length > 0) {
+      setChatList(
+        allChatList?.filter((chat) =>
+          chat.is_group
+            ? chat?.name
+                ?.toLowerCase()
+                .includes(filterState.search.toLowerCase())
+            : chat?.chat_participants
+                .filter((i) => i.user.id !== user?.id)[0]
+                ?.user.name?.toLowerCase()
+                .includes(filterState.search.toLowerCase())
+        )
+      );
+    } else if (
+      (filterState.state === "search" && filterState.search.length === 0) ||
+      filterState.state === ""
+    ) {
+      setChatList(allChatList);
+    } else {
+      setChatList([]);
+    }
+  }, [filterState.state, filterState.search]);
 
   useEffect(() => {
     async function loadData() {
@@ -34,7 +65,7 @@ export const ChatList = () => {
 
       const subscription = listenForNewChats(user?.id ?? "", async (chatId) => {
         // Either fetch that single chat and push to UI, or refetch all
-        const newChat:any = await fetchChatById(chatId);
+        const newChat: any = await fetchChatById(chatId);
         console.log("New chat received:", newChat);
       });
 
