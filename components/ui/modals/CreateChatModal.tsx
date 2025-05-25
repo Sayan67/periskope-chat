@@ -17,6 +17,7 @@ import { create } from "domain";
 import { createOrGetOneToOneChat } from "@/services/createChat";
 import { fetchChatList, fetchParticipantsForChats } from "@/services/chat-list";
 import { chatListAtom, chatParticipantsAtom } from "@/store/chatList";
+import { useRouter } from "next/navigation";
 
 export default function CreateChatModal() {
   const [search, setSearch] = useState("");
@@ -31,6 +32,7 @@ export default function CreateChatModal() {
   const [isSearching, setIsSearching] = useState(false);
   const [participantsMap, setParticipantsMap] = useAtom(chatParticipantsAtom);
   const [chatList, setChatList] = useAtom(chatListAtom);
+  const router = useRouter();
 
   useEffect(() => {
     if (debouncedSearch && debouncedSearch.length >= 2) {
@@ -123,6 +125,7 @@ export default function CreateChatModal() {
       setChatList(data);
       console.log("Creating 1:1 chat with:", selectedUsers[0]);
       toast.success("1:1 chat created successfully!");
+      router.refresh();
     }
     // Reset state after creation
     setSelectedUsers([]);

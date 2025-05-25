@@ -14,6 +14,15 @@ import { filtersAtom } from "@/store/filters";
 import { useAtom } from "jotai";
 import { Input } from "@/components/ui/input";
 import { IoMdCloseCircleOutline } from "react-icons/io";
+import { chatListAtom, chatParticipantsAtom } from "@/store/chatList";
+import { useEffect, useState } from "react";
+import {
+  fetchChatById,
+  fetchChatList,
+  fetchParticipantsForChats,
+} from "@/services/chat-list";
+import { listenForNewChats } from "@/services/listenToChatLIst";
+import { useAuth } from "@/components/Proveiders/AuthProvider";
 
 type SidebarProps = {
   chats: ChatCardProps[];
@@ -29,6 +38,38 @@ export type ChatCardProps = {
 
 export default function Sidebar() {
   const [filterState, setFilterState] = useAtom(filtersAtom);
+  const [participantsMap, setParticipantsMap] = useAtom(chatParticipantsAtom);
+  const [allChatList, setAllChatList] = useAtom(chatListAtom);
+  const [loading, setLoading] = useState<boolean>(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await fetchChatList();
+      console.log(data);
+
+      if (data.length > 0) {
+        const chatIds = data.map((chat) => chat.id);
+        const participants = await fetchParticipantsForChats(chatIds);
+        setParticipantsMap(participants);
+      }
+
+      const subscription = listenForNewChats(user?.id ?? "", async (chatId) => {
+        // Either fetch that single chat and push to UI, or refetch all
+        const newChat: any = await fetchChatById(chatId);
+        console.log("New chat received:", newChat);
+      });
+
+      setAllChatList(data);
+      setLoading(false);
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+    loadData();
+  }, [user]);
+
   return (
     <div className="w-full h-full flex flex-col">
       <SidebarHeader />
@@ -63,7 +104,7 @@ export default function Sidebar() {
           />
         </div>
       )}
-      <ChatList />
+      <ChatList loading={loading} />
     </div>
   );
 }

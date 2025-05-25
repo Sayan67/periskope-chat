@@ -18,12 +18,11 @@ import { useAuth } from "@/components/Proveiders/AuthProvider";
 import { listenForNewChats } from "@/services/listenToChatLIst";
 import { filtersAtom } from "@/store/filters";
 
-export const ChatList = () => {
+export const ChatList = ({ loading }: { loading: boolean }) => {
   const [allChatList, setAllChatList] = useAtom(chatListAtom);
   const [chatList, setChatList] = useState<Chat[] | undefined>([]);
-  const [loading, setLoading] = useState(true);
   const supabase = createClient();
-  const [participantsMap, setParticipantsMap] = useAtom(chatParticipantsAtom);
+  
   const { user } = useAuth();
   const [filterState, setFilterState] = useAtom(filtersAtom);
 
@@ -49,34 +48,7 @@ export const ChatList = () => {
     } else {
       setChatList([]);
     }
-  }, [filterState.state, filterState.search]);
-
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      const data = await fetchChatList();
-      console.log(data);
-
-      if (data.length > 0) {
-        const chatIds = data.map((chat) => chat.id);
-        const participants = await fetchParticipantsForChats(chatIds);
-        setParticipantsMap(participants);
-      }
-
-      const subscription = listenForNewChats(user?.id ?? "", async (chatId) => {
-        // Either fetch that single chat and push to UI, or refetch all
-        const newChat: any = await fetchChatById(chatId);
-        console.log("New chat received:", newChat);
-      });
-
-      setChatList(data);
-      setLoading(false);
-      return () => {
-        subscription.unsubscribe();
-      };
-    }
-    loadData();
-  }, [user]);
+  }, [filterState.state, filterState.search, allChatList, user]);
 
   return (
     <React.Fragment>

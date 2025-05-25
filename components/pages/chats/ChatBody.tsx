@@ -20,7 +20,9 @@ function ChatBody() {
       setMessages(res as Message[]);
     }
     fetchMessages();
-    const unsubscribe = listenToMessages(selectedChat?.id ?? "", (newMsg:{
+    const unsubscribe = listenToMessages(
+      selectedChat?.id ?? "",
+      (newMsg: {
         id: string;
         chat_id: string;
         content: string;
@@ -35,7 +37,8 @@ function ChatBody() {
         };
       }) => {
         setMessages((prev) => [...prev, newMsg]);
-    });
+      }
+    );
     return () => unsubscribe();
   }, [selectedChat?.id, user?.id]);
   return (
@@ -83,7 +86,14 @@ function ChatBody() {
                 >
                   {!isCurrentUser && (
                     <div className="text-xs font-medium text-green-700 dark:text-[#bfd9ab] flex justify-between gap-2">
-                      <p className="font-semibold">{msg.sender?.name?.split(" ")[0]} {msg.sender?.name?.split(" ")[1].charAt(0).toUpperCase()}.</p>
+                      <p className="font-semibold">
+                        {msg.sender?.name?.split(" ")[0]}{" "}
+                        {msg.sender?.name?.split(" ")[1] &&
+                          msg.sender?.name
+                            ?.split(" ")[1]
+                            ?.charAt(0)
+                            ?.toUpperCase()+"."}
+                      </p>
                       {msg.sender?.name && (
                         <p className="text-gray-400">
                           {msg.sender?.phone_number}

@@ -10,8 +10,16 @@ type AuthContextType = {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  signInWithEmailPassword: (email: string, password: string) => Promise<{ error: Error | null }>;
-  registerWithEmailPassword: (email: string, password: string, name: string, phone: string) => Promise<{ error: Error | null }>;
+  signInWithEmailPassword: (
+    email: string,
+    password: string
+  ) => Promise<{ error: Error | null }>;
+  registerWithEmailPassword: (
+    email: string,
+    password: string,
+    name: string,
+    phone: string
+  ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 };
 
@@ -55,12 +63,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
       });
-      
+
       if (error) {
         toast.error(error.message);
         return { error: error as Error };
       }
-      
+
       toast.success("Logged in successfully");
       router.push("/chats");
       return { error: null };
@@ -70,7 +78,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const registerWithEmailPassword = async (email: string, password: string, name: string, phone: string) => {
+  const registerWithEmailPassword = async (
+    email: string,
+    password: string,
+    name: string,
+    phone: string
+  ) => {
     try {
       // Sign up the user
       const { error, data } = await supabase.auth.signUp({
@@ -78,30 +91,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
         options: {
           data: {
-            display_name:name,
-            phone
-          }
-        }
+            display_name: name,
+            phone,
+          },
+        },
       });
-      
+
       if (error) {
         toast.error(error.message);
         return { error: error as Error };
       }
-      
+
       // If successful registration and user ID is available, create a profile
       if (data.user?.id) {
-        const { error: profileError } = await supabase.from('users').insert({
+        const { error: profileError} = await supabase
+          .from("users")
+          .insert({
             id: data.user.id,
             name: name,
             phone_number: phone,
+            email: email,
+            avatar_url: "https://i.pravatar.cc/150?u=" + data.user.id,
           });
+          console.log("Signup response:", data);
           
+
         if (profileError) {
           console.error("Error creating user profile:", profileError);
         }
       }
-      
+
       toast.success("Account created successfully");
       router.push("/chats");
       return { error: null };
