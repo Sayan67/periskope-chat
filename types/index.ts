@@ -1,10 +1,9 @@
 export type User = {
   id: string;
-  display_name: string;
-  phone: string | null;
+  email: string;
+  name: string;
+  phone_number: string | null;
   avatar_url: string | null;
-  last_seen: string;
-  created_at: string;
 };
 
 export type Chat = {
@@ -26,6 +25,7 @@ export type Chat = {
   }[];
   chat_participants: {
     user: {
+      id: string;
       name: string;
       avatar_url: string | null;
       phone_number: string;
@@ -44,6 +44,7 @@ export type Message = {
   content: string;
   created_at: string;
   sender: {
+    id: string;
     name: string | null;
     phone_number: string | null;
     avatar_url: string | null;
@@ -62,6 +63,7 @@ export type ChatPreview = {
 export type Participant = {
   chat_id: string;
   user: {
+    id: string;
     name: string | null;
     phone_number: string | null;
     avatar_url: string | null;
@@ -69,3 +71,9 @@ export type Participant = {
 };
 
 export type ChatParticipantsMap = Record<string, Participant[]>;
+
+
+export type Messages={
+  chat_id: string;
+  messages: Message[];
+}

@@ -3,17 +3,18 @@ import { FixedSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { ChatItem } from "./ChatItem";
-import { fetchChatList, fetchParticipantsForChats } from "@/services/chat-list";
+import { fetchChatById, fetchChatList, fetchParticipantsForChats } from "@/services/chat-list";
 import { Chat } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useAtom } from "jotai";
-import { chatParticipantsAtom } from "@/store/chatList";
+import { chatListAtom, chatParticipantsAtom } from "@/store/chatList";
 import { useAuth } from "@/components/Proveiders/AuthProvider";
+import { listenForNewChats } from "@/services/listenToChatLIst";
 
 export const ChatList = () => {
-  const [chatList, setChatList] = useState<Chat[] | undefined>([]);
+  const [chatList, setChatList] = useAtom(chatListAtom);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
   const [participantsMap, setParticipantsMap] = useAtom(chatParticipantsAtom);
@@ -30,8 +31,18 @@ export const ChatList = () => {
         const participants = await fetchParticipantsForChats(chatIds);
         setParticipantsMap(participants);
       }
+
+      const subscription = listenForNewChats(user?.id ?? "", async (chatId) => {
+        // Either fetch that single chat and push to UI, or refetch all
+        const newChat:any = await fetchChatById(chatId);
+        console.log("New chat received:", newChat);
+      });
+
       setChatList(data);
       setLoading(false);
+      return () => {
+        subscription.unsubscribe();
+      };
     }
     loadData();
   }, [user]);
@@ -73,7 +84,15 @@ export const ChatList = () => {
           )}
         </InfiniteLoader>
       )}
-      {loading && new Array(6).fill(0).map((_, i) => <SkeletonDemo key={i} />)}
+      <div className="w-full h-full">
+        {loading &&
+          chatList?.length === 0 &&
+          new Array(6).fill(0).map((_, i) => (
+            <div className="w-full" key={i}>
+              <SkeletonDemo key={i} />
+            </div>
+          ))}
+      </div>
     </React.Fragment>
   );
 };

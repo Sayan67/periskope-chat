@@ -34,17 +34,16 @@ export function ChatItem({
   const [chatParticipants, setChatParticipants] = useAtom(chatParticipantsAtom);
   useEffect(() => {
     const chatId = chat?.id;
-    setParticipants(chatParticipants?.[chatId as string] ?? []);
+    setParticipants(
+      chatParticipants?.[chatId as string]?.filter(
+        (item) => item.user.id !== user?.id
+      ) ?? []
+    );
   }, [chat?.id, chatParticipants]);
   return (
     <div
       onClick={() =>
-        setSelectedChat({
-          name: chat?.name ?? "",
-          id: chat?.id ?? "",
-          lastMessage: chat?.messages?.[0]?.content ?? "",
-          time: formatMessageDate(chat?.messages?.[0]?.created_at ?? ""),
-        })
+        setSelectedChat(chat as Chat)
       }
       style={style}
       className="flex items-start px-3 pt-3 pb-2 border-b border-gray-100 cursor-pointer hover:bg-gray-100"
@@ -65,21 +64,21 @@ export function ChatItem({
         )}
       </div>
       <div className="flex-1">
+        {/* Name of the chat */}
         <div className="font-medium">
-          {chat?.name
+          {chat?.is_group
             ? chat.name
-            : chat?.chat_participants[0].user.name ?? "Unknown"}
+            : chat?.chat_participants.filter((i) => i.user.id !== user?.id)[0]?.user.name ?? "Unknown"}
         </div>
         {chat?.messages && chat?.messages?.length > 0 && (
           <div className="text-sm text-gray-500 truncate">
-            {
-              chat?.messages?.[0]?.sender?.name ??
-              chat?.chat_participants[0].user.name.split(" ")[0]
-            }{` : `} 
+            {chat?.messages?.[0]?.sender?.name ??
+              chat?.chat_participants[0].user.name.split(" ")[0]}
+            {` : `}
             {chat?.messages?.[0]?.content.length &&
-            chat?.messages?.[0]?.content.length <= 20
+            chat?.messages?.[0]?.content.length <= 15
               ? chat?.messages?.[0]?.content
-              : chat?.messages?.[0]?.content.slice(0, 20) + "..."}
+              : chat?.messages?.[0]?.content.slice(0, 15) + "..."}
           </div>
         )}
         <div className="bg-gray-100 rounded-sm px-2 py-1 text-xs text-gray-500 w-fit">
@@ -121,7 +120,7 @@ export function ChatItem({
           <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
             {chat?.messages[0]?.sender?.avatar_url ? (
               <Image
-                src={chat?.chat_participants?.[0]?.user.avatar_url as string}
+                src={chat?.messages?.[0]?.sender?.avatar_url}
                 alt="Avatar"
                 width={48}
                 height={48}

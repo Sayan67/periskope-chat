@@ -5,50 +5,50 @@ const supabase = createClient();
 
 const currentUserId = (await supabase.auth.getUser()).data.user?.id;
 
+export type ChatParticipant = {
+  chat_id: string;
+  chat_name: string | null;
+  is_group: boolean;
+  chat_created_at: string;
+  participant_id: string;
+  participant_name: string;
+  phone_number: string;
+  avatar_url: string | null;
+  last_message: string | null;
+  last_message_time: string | null;
+  sender_name: string | null;
+};
+
 // Fetching chat list for the current user
-export async function fetchChatList() {
+export async function fetchChatList(): Promise<Chat[]> {
   try {
-    const response = await supabase
-      .from("chat_participants")
-      .select(
-        `
-      chat:chats (
-        id,
-        name,
-        is_group,
-        created_at,
-        labels (
-          name
-        ),
-        messages (
-          content,
-          created_at,
-          sender:users (
-            name,
-            phone_number,
-            avatar_url
-          )
-        ),
-        chat_participants (
-          user:users (
-            name,
-            phone_number,
-            avatar_url
-          )
-        )
-      )
-    `
-      )
-      .eq("user_id", currentUserId);
+    const response = await supabase.rpc(
+      "get_user_chat_list_with_latest_message",
+      {
+        user_uuid: currentUserId,
+      }
+    );
     console.log(response);
 
     if (response.error) {
       throw new Error(response.error.message);
     }
-    return response.data.map((item) => {
-      const chatData = item.chat;
-      return chatData as unknown as Chat;
-    });
+    return response.data.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      is_group: item.is_group,
+      created_at: item.created_at,
+      labels: item.labels || [],
+      messages: item.messages || [],
+      chat_participants: item.chat_participants.map((participant: any) => ({
+        user: {
+          id: participant.user.id,
+          name: participant.user.name,
+          phone_number: participant.user.phone_number,
+          avatar_url: participant.user.avatar_url || null,
+        },
+      })),
+    }));
   } catch (error) {
     console.log(error);
     return [];
@@ -72,7 +72,7 @@ export async function fetchParticipantsForChats(
       `
     )
     .in("chat_id", chatIds);
-  console.log("chat participants : ",data);
+  console.log("chat participants : ", data);
 
   if (error) {
     throw new Error(error.message);
@@ -92,6 +92,30 @@ export async function fetchParticipantsForChats(
   console.log(participantsMap);
 
   return participantsMap;
+}
+
+export async function fetchChatById(chatId: string) {
+  const { data, error } = await supabase
+    .from("chats")
+    .select(
+      `
+      id,
+      name,
+      is_group,
+      created_at,
+      labels ( name ),
+      chat_participants (
+        user:users (
+          id, name, phone_number, avatar_url
+        )
+      )
+    `
+    )
+    .eq("id", chatId)
+    .single();
+
+  if (error) throw error;
+  return data;
 }
 
 const example_res = {

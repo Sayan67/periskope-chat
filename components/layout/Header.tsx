@@ -11,7 +11,7 @@ import { IoMdNotificationsOff } from "react-icons/io";
 
 function Header() {
   return (
-    <div className="w-full h-[60px] bg-white border-b border-gray-200 flex items-center justify-bewteen px-4 gap-4">
+    <div className="w-full h-[45px] bg-white border-b border-gray-200 flex items-center justify-bewteen px-4 gap-4">
       <div className="flex items-center gap-2">
         <BsChatDotsFill className="text-gray-500" size={20} />
         <p className="font-semibold text-gray-500">Chats</p>
